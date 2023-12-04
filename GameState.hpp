@@ -67,6 +67,7 @@ public:
     void pressButton(sf::Keyboard::Key key);
     void update(sf::Time delta);
     void draw(sf::RenderWindow& window);
+    void reset();
 };
 
 class MenuState : public GameState {

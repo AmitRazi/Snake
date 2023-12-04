@@ -24,15 +24,13 @@ private:
 public:
     Snake();
 
-    void Init();
+    void Init(int initialSize);
 
     void Move(const sf::Vector2f direction);
 
     bool FoodCollision(const sf::Sprite &food) const;
 
     bool Collision(const sf::Sprite& other) const;
-
-    void Grow();
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
@@ -41,11 +39,6 @@ public:
     void grow(sf::Vector2f position);
 
     sf::Sprite& getTail();
-
-    sf::Sprite& getHead(){
-        return m_head;
-    }
-
 
 };
 

@@ -5,21 +5,29 @@
 #include <iostream>
 #include "Snake.hpp"
 
-Snake::Snake() : m_body(std::list<sf::Sprite>(3)), m_assetManager(AssetManager::getInstance()), m_isDead(false) {
+Snake::Snake() : m_body(), m_assetManager(AssetManager::getInstance()), m_isDead(false) {
 }
 
-void Snake::Init() {
-    float offset = 32.f;
-
-    for (auto &segment: m_body) {
-        segment.setTexture(m_assetManager.getTexture(Asset::SnakeBody));
-        segment.setPosition(offset, 32.f);
-        offset += 32.f;
+void Snake::Init(int initialSize) {
+    if(m_isDead){
+        m_isDead = false;
+        m_body.clear();
     }
+
+    float offset = 32.f * initialSize;
 
     m_head.setTexture(m_assetManager.getTexture(Asset::SnakeHead));
     m_head.setPosition(offset, 32.f);
+
+    sf::Sprite segment;
+    segment.setTexture(m_assetManager.getTexture(Asset::SnakeBody));
+    for (int i = 0; i < initialSize; ++i) {
+        offset -= 32.f;
+        segment.setPosition(offset, 32.f);
+        m_body.push_front(segment);
+    }
 }
+
 
 void Snake::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     for (auto &bodyPart: m_body) {
@@ -91,3 +99,4 @@ void Snake::grow(sf::Vector2f position) {
 sf::Sprite &Snake::getTail() {
     return m_body.back();
 }
+

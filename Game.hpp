@@ -25,11 +25,9 @@ public:
     sf::Vector2u getWindowSize() const;
 
 private:
-
-
     sf::RenderWindow m_window;
     GameState* m_currentState;
-    std::array<GameState*,GameState::Count> m_gameStates;
+    std::array<std::unique_ptr<GameState>,GameState::Count> m_gameStates;
 };
 
 

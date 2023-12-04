@@ -6,22 +6,20 @@
 #include <iostream>
 #include "Game.hpp"
 Game::Game() :m_window(sf::VideoMode(576,576),"PacSnake"){
-    m_gameStates[GameState::Welcome] = new WelcomeState(this);
-    m_gameStates[GameState::Menu] = new MenuState(this);
-    m_gameStates[GameState::Play] = new PlayState(this);
-    m_gameStates[GameState::GameOverState] = new GameOverState(this);
+    m_gameStates[GameState::Welcome] = std::make_unique<WelcomeState>(this);
+    m_gameStates[GameState::Menu] = std::make_unique<MenuState>(this);
+    m_gameStates[GameState::Play] = std::make_unique<PlayState>(this);
+    m_gameStates[GameState::GameOverState] = std::make_unique<GameOverState>(this);
 
 
     changeGameState(GameState::Welcome);
 }
 
 Game::~Game(){
-    for(GameState* state: m_gameStates)
-        delete state;
 }
 
 void Game::changeGameState(GameState::State gameState) {
-    m_currentState = m_gameStates[gameState];
+    m_currentState = m_gameStates[gameState].get();
 }
 
 

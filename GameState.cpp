@@ -57,9 +57,7 @@ void WelcomeState::draw(sf::RenderWindow &window) {
 
 PlayState::PlayState(Game *game) : GameState(game), m_level(game), m_snakeDirection(20.f, 0),
                                    m_elapsed(sf::Time::Zero) {
-    m_level.loadLevel("small2.png");
-    m_level.placeFoodRandomly();
-    m_snake.Init();
+    reset();
 }
 
 void PlayState::pressButton(sf::Keyboard::Key key) {
@@ -89,6 +87,7 @@ void PlayState::update(sf::Time delta) {
         for (auto wall: walls) {
             if (m_snake.Collision(wall)) {
                 m_snake.die();
+                reset();
                 getGame()->changeGameState(GameOverState);
             }
         }
@@ -104,6 +103,15 @@ void PlayState::update(sf::Time delta) {
         m_elapsed = sf::Time::Zero;
     }
 }
+
+void PlayState::reset() {
+    m_snakeDirection = {20.f, 0.f};  // Reset direction
+    m_elapsed = sf::Time::Zero;
+    m_level.loadLevel("small2.png");  // Reload the level
+    m_level.placeFoodRandomly();
+    m_snake.Init(3);  // Reinitialize the snake
+}
+
 
 void PlayState::draw(sf::RenderWindow &window) {
     window.clear();
@@ -246,6 +254,8 @@ void GameOverState::update(sf::Time delta) {
     }
 
     if (m_replayPressed) {
+        m_replayPressed = false;
+        m_replayMarked = true;
         getGame()->changeGameState(GameState::Play);
     }
 }
