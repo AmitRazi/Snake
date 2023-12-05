@@ -4,6 +4,7 @@
 
 #include <Window/Keyboard.hpp>
 #include <iostream>
+#include <System/Sleep.hpp>
 #include "GameState.hpp"
 #include "Game.hpp"
 
@@ -55,61 +56,73 @@ void WelcomeState::draw(sf::RenderWindow &window) {
     }
 }
 
-PlayState::PlayState(Game *game) : GameState(game), m_level(game), m_snakeDirection(20.f, 0),
+PlayState::PlayState(Game *game) : GameState(game), m_level(game), m_snakeDirection(Direction::Right),
                                    m_elapsed(sf::Time::Zero) {
     reset();
 }
 
 void PlayState::pressButton(sf::Keyboard::Key key) {
+    Direction newDirection = m_snakeDirection; // Temporary variable to store the new direction
+
     switch (key) {
         case sf::Keyboard::Up:
-            m_snakeDirection = {0.f, -20.f};
+            newDirection = Direction::Up;
             break;
         case sf::Keyboard::Down:
-            m_snakeDirection = {0.f, 20.f};
+            newDirection = Direction::Down;
             break;
         case sf::Keyboard::Left:
-            m_snakeDirection = {-20.f, 0.f};
+            newDirection = Direction::Left;
             break;
         case sf::Keyboard::Right:
-            m_snakeDirection = {20.f, 0.f};
+            newDirection = Direction::Right;
             break;
         default:
-            break;
+            return; // If it's not a direction key, do nothing
+    }
+
+    // Use modulo operation to check for opposite direction
+    if ((newDirection % 2) != (m_snakeDirection % 2)) {
+        m_snakeDirection = newDirection; // Update the direction if it's not opposite
     }
 }
 
 void PlayState::update(sf::Time delta) {
     auto food = m_level.getFood();
     m_elapsed += delta;
-    if (m_elapsed.asSeconds() > 0.1) {
+    if (m_elapsed.asSeconds() > 0.2) {
         auto walls = m_level.getWalls();
         for (auto wall: walls) {
             if (m_snake.Collision(wall)) {
-                m_snake.die();
                 reset();
                 getGame()->changeGameState(GameOverState);
+                return;
             }
+        }
+
+        if(m_snake.selfCollision()){
+            reset();
+            getGame()->changeGameState(GameOverState);
+            return;
         }
 
         if (m_snake.FoodCollision(food)) {
             m_level.placeFoodRandomly();
             auto tailPosition = m_snake.getTail().getPosition();
-            m_snake.Move(m_snakeDirection);
             m_snake.grow(tailPosition);
-        } else {
-            m_snake.Move(m_snakeDirection);
         }
+        m_snake.move(m_snakeDirection);
         m_elapsed = sf::Time::Zero;
     }
 }
 
 void PlayState::reset() {
-    m_snakeDirection = {20.f, 0.f};  // Reset direction
+    m_snakeDirection = Direction::Right;  // Reset direction
     m_elapsed = sf::Time::Zero;
     m_level.loadLevel("small2.png");  // Reload the level
     m_level.placeFoodRandomly();
     m_snake.Init(3);  // Reinitialize the snake
+
 }
 
 
@@ -183,12 +196,12 @@ void MenuState::draw(sf::RenderWindow &window) {
     window.draw(m_exitText);
 }
 
-Game* GameState::getGame() const {
+Game *GameState::getGame() const {
     return m_game;
 }
 
 
-GameOverState::GameOverState(Game* game) : GameState(game) {
+GameOverState::GameOverState(Game *game) : GameState(game) {
     sf::Vector2u windowSize = game->getWindowSize();
 
     // Setup GameOver Text
@@ -260,7 +273,7 @@ void GameOverState::update(sf::Time delta) {
     }
 }
 
-void GameOverState::draw(sf::RenderWindow& window) {
+void GameOverState::draw(sf::RenderWindow &window) {
     window.draw(m_gameOverText);
     window.draw(m_replayText);
     window.draw(m_exitText);

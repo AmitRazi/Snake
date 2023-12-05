@@ -11,35 +11,55 @@
 #include <System/Time.hpp>
 #include <Graphics/Sprite.hpp>
 #include <list>
+#include <deque>
 #include "Level.hpp"
+
+enum Direction {
+    Up,
+    Right,
+    Down,
+    Left
+};
+
+
+struct bodySegment{
+    sf::Sprite m_sprite;
+    Direction m_previousDirection;
+    Direction m_currentDirection;
+};
 
 
 class Snake : public sf::Drawable {
 private:
-    sf::Sprite m_head;
-    std::list<sf::Sprite> m_body;
+    std::list<std::unique_ptr<bodySegment>> m_body;
     AssetManager& m_assetManager;
-    bool m_isDead;
 
 public:
     Snake();
 
     void Init(int initialSize);
 
-    void Move(const sf::Vector2f direction);
+    void move(const Direction direction);
 
     bool FoodCollision(const sf::Sprite &food) const;
 
     bool Collision(const sf::Sprite& other) const;
 
-    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
+    bool selfCollision() const;
 
-    void die();
+    void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
     void grow(sf::Vector2f position);
 
+    float getRotationForDirection(Direction direction);
+
+    sf::Vector2f getNewPosition(sf::Vector2f currentPosition,Direction direction);
+
     sf::Sprite& getTail();
 
+    void changeToTurning(std::_List_iterator<std::unique_ptr<bodySegment>> iterator, Direction direction);
+
+    void revertToNormalSprite(sf::Sprite& sprite, Direction direction);
 };
 
 

@@ -58,7 +58,7 @@ class PlayState : public GameState {
     Snake m_snake;
     Level m_level;
 
-    sf::Vector2f m_snakeDirection;
+    Direction m_snakeDirection;
     sf::Time m_elapsed;
 
 public:

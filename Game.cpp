@@ -5,6 +5,7 @@
 #include <Window/Event.hpp>
 #include <iostream>
 #include "Game.hpp"
+
 Game::Game() :m_window(sf::VideoMode(576,576),"PacSnake"){
     m_gameStates[GameState::Welcome] = std::make_unique<WelcomeState>(this);
     m_gameStates[GameState::Menu] = std::make_unique<MenuState>(this);

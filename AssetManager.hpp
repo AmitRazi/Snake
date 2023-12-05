@@ -17,7 +17,8 @@ enum Asset{
     VerticalBottomEdge,
     SnakeHead,
     SnakeBody,
-    DeadHead,
+    VerticalBody,
+    TurnBody,
     Food,
     Font,
     Logo

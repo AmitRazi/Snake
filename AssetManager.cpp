@@ -12,12 +12,12 @@ AssetManager::AssetManager() {
     addTexture(Asset::VerticalBottomEdge, "C:\\Users\\97250\\Snake\\assets\\wall_block_32_5.png", false);
     addTexture(Asset::VerticalUpperEdge, "C:\\Users\\97250\\Snake\\assets\\wall_block_32_6.png", false);
     addTexture(Asset::singleBlock, "C:\\Users\\97250\\Snake\\assets\\wall_block_32_0.png", false);
-    addTexture(Asset::SnakeBody, "C:\\Users\\97250\\Snake\\assets\\snake_green_blob_32.png", false);
-    addTexture(Asset::SnakeHead, "C:\\Users\\97250\\Snake\\assets\\snake_green_head_32.png", false);
-    addTexture(Asset::DeadHead, "C:\\Users\\97250\\Snake\\assets\\snake_green_xx_32.png", false);
+    addTexture(Asset::SnakeBody, "C:\\Users\\97250\\Snake\\assets\\body_horizontal.png", false);
+    addTexture(Asset::SnakeHead, "C:\\Users\\97250\\Snake\\assets\\head_right.png", false);
+    addTexture(Asset::VerticalBody, "C:\\Users\\97250\\Snake\\assets\\body_vertical.png", false);
+    addTexture(Asset::TurnBody, "C:\\Users\\97250\\Snake\\assets\\body_bottomright.png", false);
     addTexture(Asset::Food, "C:\\Users\\97250\\Snake\\assets\\apple_red_32.png", false);
     addTexture(Asset::Logo, "C:\\Users\\97250\\Snake\\assets\\logo2.png", false);
-    addTexture(Asset::Food, "C:\\Users\\97250\\Snake\\assets\\apple_red_32.png", false);
 
     addFont(Asset::Font, "C:\\Users\\97250\\Snake\\assets\\font.ttf");
 }
