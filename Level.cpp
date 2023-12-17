@@ -4,7 +4,6 @@
 
 #include <Graphics/RectangleShape.hpp>
 #include <Graphics/Sprite.hpp>
-#include <iostream>
 #include <random>
 #include <chrono>
 #include "Level.hpp"
@@ -15,7 +14,7 @@ Level::Level() : m_assetManager(AssetManager::getInstance()),m_food(m_assetManag
 
 void Level::loadLevel(const std::string& name) {
     sf::Image levelData;
-    if (!levelData.loadFromFile(R"(C:\Users\97250\Snake\assets\small.png)")) {
+    if (!levelData.loadFromFile(R"(..\assets\newlevel.png)")) {
         throw std::runtime_error("Could not load the level");
     }
 
@@ -26,30 +25,32 @@ void Level::loadLevel(const std::string& name) {
             sf::Color cellData = levelData.getPixel(x, y);
 
             if (cellData == sf::Color::Black) {
-                m_levelData[x][y] = Wall;
+                m_levelData[x][y] = LeftEdgeWall;
             } else if (cellData == sf::Color::White) {
-                m_levelData[x][y] = Empty;
+                m_levelData[x][y] = RightEdgeWall;
             } else if (cellData == sf::Color::Green) {
-                m_levelData[x][y] = Empty;
+                m_levelData[x][y] = TopEdgeWall;
             } else if (cellData == sf::Color::Blue) {
-                m_levelData[x][y] = Empty;
+                m_levelData[x][y] = BottomEdgeWall;
             } else if (cellData == sf::Color::Red) {
-                m_levelData[x][y] = Empty;
-            } else {
+                m_levelData[x][y] = HorizontalWall;
+            } else if (cellData == sf::Color::Yellow){
+                m_levelData[x][y] = VerticalWall;
+            } else{
                 m_levelData[x][y] = Empty;
             }
         }
     }
 
-    std::cout << m_levelSize.x << " " << m_levelSize.y;
     m_renderTexture.create(32 * m_levelSize.x, 32 * m_levelSize.y);
     m_renderTexture.clear(sf::Color::Green);
 
-    sf::Sprite wallSprite(m_assetManager.getTexture(Asset::HorizontalBlock));
+    sf::Sprite wallSprite(m_assetManager.getTexture(Asset::HorizontalWall));
 
     for (int y = 0; y < m_levelSize.y; y++) {
         for (int x = 0; x < m_levelSize.x; x++) {
-            if (m_levelData[x][y] == Wall) {
+            if (m_levelData[x][y] != Empty) {
+                wallSprite.setTexture(m_assetManager.getTexture(m_levelData[x][y]));
                 wallSprite.setPosition(32.f * x, 32.f * y);
                 m_walls.emplace_back(wallSprite);
                 m_renderTexture.draw(wallSprite);

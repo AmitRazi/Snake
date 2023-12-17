@@ -9,7 +9,7 @@
 #include "MenuState.hpp"
 #include "PlayState.hpp"
 
-Game::Game() :m_window(sf::VideoMode(576,576),"PacSnake"){
+Game::Game() :m_window(sf::VideoMode(576,576),"PacSnake"), m_currentState(nullptr){
 }
 
 void Game::initialize() {
@@ -24,8 +24,7 @@ void Game::initialize() {
 }
 
 
-Game::~Game(){
-}
+Game::~Game() = default;
 
 void Game::changeGameState(GameState::State gameState) {
     m_currentState = m_gameStates[gameState].get();

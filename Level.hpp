@@ -16,12 +16,7 @@
 class Game;
 
 class Level : public sf::Drawable {
-    enum cellData {
-        Empty,
-        Wall,
-    };
-
-    std::array<std::array<cellData, 18>, 18> m_levelData;
+    std::array<std::array<Asset, 18>, 18> m_levelData;
     sf::RenderTexture m_renderTexture;
     std::vector<sf::Sprite> m_walls;
     AssetManager& m_assetManager;

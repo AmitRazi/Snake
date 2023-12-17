@@ -8,13 +8,13 @@
 
 #include <Graphics/Font.hpp>
 enum Asset{
-    singleBlock,
-    HorizontalLeftEdge,
-    HorizontalBlock,
-    HorizontalRightEdge,
-    VerticalUpperEdge,
-    VerticalBlock,
-    VerticalBottomEdge,
+    Empty,
+    LeftEdgeWall,
+    RightEdgeWall,
+    VerticalWall,
+    BottomEdgeWall,
+    TopEdgeWall,
+    HorizontalWall,
     SnakeHead,
     SnakeBody,
     VerticalBody,
