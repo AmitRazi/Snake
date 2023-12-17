@@ -28,15 +28,16 @@ public:
         Count
     };
 
-    GameState(Game* game);
-    Game* getGame() const;
+    GameState(std::shared_ptr<Game> game);
+    virtual ~GameState() {}
 
+    std::shared_ptr<Game> getGame() const;
     virtual void pressButton(sf::Keyboard::Key key) = 0;
     virtual void update(sf::Time delta) = 0;
     virtual void draw(sf::RenderWindow& window) = 0;
 
 private:
-    Game* m_game;
+    std::shared_ptr<Game> m_game;
 };
 
 class WelcomeState : public GameState {
@@ -46,7 +47,7 @@ class WelcomeState : public GameState {
     bool m_flash;
 
 public:
-    WelcomeState(Game* game);
+    WelcomeState(std::shared_ptr<Game> game);
 
     void pressButton(sf::Keyboard::Key key);
     void update(sf::Time delta);
@@ -62,11 +63,13 @@ class PlayState : public GameState {
     sf::Time m_elapsed;
 
 public:
-    PlayState(Game* game);
+    PlayState(std::shared_ptr<Game> game);
 
     void pressButton(sf::Keyboard::Key key);
-    void update(sf::Time delta);
+
     void draw(sf::RenderWindow& window);
+    void update(sf::Time delta);
+
     void reset();
 };
 
@@ -80,7 +83,7 @@ class MenuState : public GameState {
     bool m_exitPressed;
 
 public:
-    MenuState(Game* game);
+    MenuState(std::shared_ptr<Game> game);
 
     void pressButton(sf::Keyboard::Key key);
     void update(sf::Time delta);
@@ -100,7 +103,7 @@ class GameOverState : public GameState {
     bool m_exitPressed;
 
 public:
-    GameOverState(Game* game);
+    GameOverState(std::shared_ptr<Game> game);
 
     void pressButton(sf::Keyboard::Key key);
     void update(sf::Time delta);

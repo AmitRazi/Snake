@@ -3,18 +3,22 @@
 //
 
 #include <Window/Event.hpp>
-#include <iostream>
 #include "Game.hpp"
 
 Game::Game() :m_window(sf::VideoMode(576,576),"PacSnake"){
-    m_gameStates[GameState::Welcome] = std::make_unique<WelcomeState>(this);
-    m_gameStates[GameState::Menu] = std::make_unique<MenuState>(this);
-    m_gameStates[GameState::Play] = std::make_unique<PlayState>(this);
-    m_gameStates[GameState::GameOverState] = std::make_unique<GameOverState>(this);
+}
 
+void Game::initialize() {
+    auto self = shared_from_this();
+
+    m_gameStates[GameState::Welcome] = std::make_unique<WelcomeState>(self);
+    m_gameStates[GameState::Menu] = std::make_unique<MenuState>(self);
+    m_gameStates[GameState::Play] = std::make_unique<PlayState>(self);
+    m_gameStates[GameState::GameOverState] = std::make_unique<GameOverState>(self);
 
     changeGameState(GameState::Welcome);
 }
+
 
 Game::~Game(){
 }

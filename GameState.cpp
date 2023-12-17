@@ -3,10 +3,10 @@
 //
 
 #include <Window/Keyboard.hpp>
-#include <iostream>
-#include <System/Sleep.hpp>
+
 #include "GameState.hpp"
 #include "Game.hpp"
+
 
 template<typename T>
 void centerOrigin(T &drawable) {
@@ -14,9 +14,9 @@ void centerOrigin(T &drawable) {
     drawable.setOrigin(bound.width / 2, bound.height / 2);
 }
 
-GameState::GameState(Game *game) : m_game(game), m_assetManager(AssetManager::getInstance()) {};
+GameState::GameState(std::shared_ptr<Game> game) : m_game(game), m_assetManager(AssetManager::getInstance()) {};
 
-WelcomeState::WelcomeState(Game *game) : GameState(game) {
+WelcomeState::WelcomeState(std::shared_ptr<Game> game) : GameState(game) {
     sf::Vector2u windowSize = game->getWindowSize();
 
     m_sprite.setTexture(m_assetManager.getTexture(Asset::Logo));
@@ -56,7 +56,7 @@ void WelcomeState::draw(sf::RenderWindow &window) {
     }
 }
 
-PlayState::PlayState(Game *game) : GameState(game), m_level(game), m_snakeDirection(Direction::Right),
+PlayState::PlayState(std::shared_ptr<Game> game) : GameState(game), m_level(), m_snakeDirection(Direction::Right),
                                    m_elapsed(sf::Time::Zero) {
     reset();
 }
@@ -87,6 +87,22 @@ void PlayState::pressButton(sf::Keyboard::Key key) {
     }
 }
 
+void PlayState::reset() {
+    m_snakeDirection = Direction::Right;  // Reset direction
+    m_elapsed = sf::Time::Zero;
+    m_level.loadLevel("small2.png");  // Reload the level
+    m_level.placeFoodRandomly();
+    m_snake.Init(3);  // Reinitialize the snake
+
+}
+
+
+void PlayState::draw(sf::RenderWindow &window) {
+    window.clear();
+    window.draw(m_level);
+    window.draw(m_snake);
+}
+
 void PlayState::update(sf::Time delta) {
     auto food = m_level.getFood();
     m_elapsed += delta;
@@ -108,7 +124,7 @@ void PlayState::update(sf::Time delta) {
 
         if (m_snake.FoodCollision(food)) {
             m_level.placeFoodRandomly();
-            auto tailPosition = m_snake.getTail().getPosition();
+            auto tailPosition = m_snake.GetTail().getPosition();
             m_snake.grow(tailPosition);
         }
         m_snake.move(m_snakeDirection);
@@ -116,23 +132,8 @@ void PlayState::update(sf::Time delta) {
     }
 }
 
-void PlayState::reset() {
-    m_snakeDirection = Direction::Right;  // Reset direction
-    m_elapsed = sf::Time::Zero;
-    m_level.loadLevel("small2.png");  // Reload the level
-    m_level.placeFoodRandomly();
-    m_snake.Init(3);  // Reinitialize the snake
 
-}
-
-
-void PlayState::draw(sf::RenderWindow &window) {
-    window.clear();
-    window.draw(m_level);
-    window.draw(m_snake);
-}
-
-MenuState::MenuState(Game *game) : GameState(game), m_exitMarked(false), m_exitPressed(false), m_playPressed(false),
+MenuState::MenuState(std::shared_ptr<Game> game) : GameState(game), m_exitMarked(false), m_exitPressed(false), m_playPressed(false),
                                    m_playMarked(true) {
     sf::Vector2u windowSize = game->getWindowSize();
     m_playText.setFont(m_assetManager.getFont(Asset::Font));
@@ -196,12 +197,12 @@ void MenuState::draw(sf::RenderWindow &window) {
     window.draw(m_exitText);
 }
 
-Game *GameState::getGame() const {
+std::shared_ptr<Game> GameState::getGame() const {
     return m_game;
 }
 
 
-GameOverState::GameOverState(Game *game) : GameState(game) {
+GameOverState::GameOverState(std::shared_ptr<Game> game) : GameState(game) {
     sf::Vector2u windowSize = game->getWindowSize();
 
     // Setup GameOver Text

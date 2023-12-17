@@ -10,12 +10,12 @@
 #include "Level.hpp"
 #include "Game.hpp"
 
-Level::Level(Game *game) : m_game(game), m_assetManager(AssetManager::getInstance()),m_food(m_assetManager.getTexture(Food)) {
+Level::Level() : m_assetManager(AssetManager::getInstance()),m_food(m_assetManager.getTexture(Food)) {
 }
 
-void Level::loadLevel(std::string name) {
+void Level::loadLevel(const std::string& name) {
     sf::Image levelData;
-    if (!levelData.loadFromFile("C:\\Users\\97250\\Snake\\assets\\small.png")) {
+    if (!levelData.loadFromFile(R"(C:\Users\97250\Snake\assets\small.png)")) {
         throw std::runtime_error("Could not load the level");
     }
 
@@ -50,7 +50,7 @@ void Level::loadLevel(std::string name) {
     for (int y = 0; y < m_levelSize.y; y++) {
         for (int x = 0; x < m_levelSize.x; x++) {
             if (m_levelData[x][y] == Wall) {
-                wallSprite.setPosition(32 * x, 32 * y);
+                wallSprite.setPosition(32.f * x, 32.f * y);
                 m_walls.emplace_back(wallSprite);
                 m_renderTexture.draw(wallSprite);
             }
@@ -74,7 +74,7 @@ std::vector<std::pair<int, int>> Level::getEmptyCells() const {
         for (int y = 1; y < 17; ++y) {
             bool isWall = false;
             for (const auto& wall : m_walls) {
-                if (wall.getPosition() == sf::Vector2f(32 * x, 32 * y)) {
+                if (wall.getPosition() == sf::Vector2f(32.f * x, 32.f * y)) {
                     isWall = true;
                     break;
                 }
@@ -97,12 +97,12 @@ void Level::placeFoodRandomly() {
         return;
     }
 
-    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    static unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     static std::mt19937 eng(seed);
 
-    std::uniform_int_distribution<> distr(0, emptyCells.size() - 1);
+    std::uniform_int_distribution<> dist(0, emptyCells.size() - 1);
 
-    auto [x, y] = emptyCells[distr(eng)];
+    auto [x, y] = emptyCells[dist(eng)];
     m_food.setPosition(32 * x, 32 * y);
     m_renderTexture.clear(sf::Color::Green); // Clear the texture to remove old food position
 

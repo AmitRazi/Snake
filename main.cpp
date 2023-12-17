@@ -4,8 +4,9 @@
 
 int main()
 {
-    Game game;
-    game.run();
+    std::shared_ptr<Game> game = std::make_shared<Game>();
+    game->initialize();
+    game->run();
 }
 
 

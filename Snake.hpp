@@ -39,9 +39,9 @@ public:
 
     void Init(int initialSize);
 
-    void move(const Direction direction);
+    void move(Direction direction);
 
-    bool FoodCollision(const sf::Sprite &food) const;
+    bool FoodCollision(const sf::Sprite& food) const;
 
     bool Collision(const sf::Sprite& other) const;
 
@@ -49,17 +49,17 @@ public:
 
     void draw(sf::RenderTarget &target, sf::RenderStates states) const override;
 
-    void grow(sf::Vector2f position);
+    void grow(const sf::Vector2f& position);
 
-    float getRotationForDirection(Direction direction);
+    float GetRotationForDirection(Direction direction) const;
 
-    sf::Vector2f getNewPosition(sf::Vector2f currentPosition,Direction direction);
+    sf::Vector2f GetNewPosition(const sf::Vector2f& currentPosition,Direction direction) const;
 
-    sf::Sprite& getTail();
+    sf::Sprite& GetTail() const;
 
-    void changeToTurning(std::_List_iterator<std::unique_ptr<bodySegment>> iterator, Direction direction);
+    void ChangeToTurning(const std::_List_iterator<std::unique_ptr<bodySegment>>& iterator,Direction direction);
 
-    void revertToNormalSprite(sf::Sprite& sprite, Direction direction);
+    void RevertToNormalSprite(sf::Sprite& sprite, Direction direction);
 };
 
 
