@@ -35,6 +35,12 @@ class AssetManager {
 public:
     static AssetManager& getInstance();
 
+    template<typename T>
+    static void centerOrigin(T &drawable) {
+        sf::FloatRect bound = drawable.getLocalBounds();
+        drawable.setOrigin(bound.width / 2, bound.height / 2);
+    }
+
     void addTexture(Asset assetID,const std::string& filePath, bool isRepeating);
     void addFont(Asset assetID, const std::string& filePath);
 

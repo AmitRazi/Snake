@@ -4,6 +4,8 @@
 
 #include "AssetManager.hpp"
 
+
+
 AssetManager::AssetManager() {
     addTexture(Asset::HorizontalBlock, "C:\\Users\\97250\\Snake\\assets\\wall_block_32_2.png", false);
     addTexture(Asset::HorizontalLeftEdge, "C:\\Users\\97250\\Snake\\assets\\wall_block_32_1.png", false);
@@ -50,3 +52,4 @@ const sf::Font& AssetManager::getFont(Asset asset){
 const sf::Texture& AssetManager::getTexture(Asset asset){
     return *(m_textures[asset]);
 }
+

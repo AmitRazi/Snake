@@ -4,6 +4,10 @@
 
 #include <Window/Event.hpp>
 #include "Game.hpp"
+#include "GameOverState.hpp"
+#include "WelcomeState.hpp"
+#include "MenuState.hpp"
+#include "PlayState.hpp"
 
 Game::Game() :m_window(sf::VideoMode(576,576),"PacSnake"){
 }
