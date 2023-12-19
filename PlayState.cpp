@@ -58,7 +58,7 @@ void PlayState::update(sf::Time delta) {
     if (m_elapsed.asSeconds() > 0.5) {
         auto walls = m_level.getWalls();
         for (auto wall: walls) {
-            if (m_snake.collision(wall)) {
+            if (m_snake.collision(wall,0.5f)) {
                 reset();
                 getGame()->changeGameState(GameOverState);
                 return;
@@ -71,7 +71,7 @@ void PlayState::update(sf::Time delta) {
             return;
         }
 
-        if (m_snake.foodCollision(food)) {
+        if (m_snake.collision(food,0.5f)) {
             m_level.placeFoodRandomly();
             auto tailPosition = m_snake.getTail().getPosition();
             m_snake.grow(tailPosition);

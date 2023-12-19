@@ -43,14 +43,12 @@ public:
 
     void move(Direction direction);
 
-    void moveHead(Direction newDirection);
-
     void moveBodySegment(bodySegment& currentSegment,
                          Direction& currentDirection);
 
-    bool foodCollision(const sf::Sprite& food) const;
+    void moveTail(const sf::Vector2f& newPosition,const Direction& newDirection);
 
-    bool collision(const sf::Sprite& other) const;
+    bool collision(const sf::Sprite& other,const float shrinkFactor) const;
 
     bool selfCollision() const;
 
