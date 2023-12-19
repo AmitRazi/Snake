@@ -8,6 +8,10 @@
 
 #include "GameState.hpp"
 
+static const double gameSpeed = 0.1;
+
+static const float shrinkFactor = 0.5f;
+
 class PlayState : public GameState {
     Snake m_snake;
     Level m_level;
