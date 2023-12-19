@@ -49,14 +49,12 @@ void Snake::draw(sf::RenderTarget &target, sf::RenderStates states) const {
         target.draw(bodyPart->m_sprite);
     }
 }
-
 void Snake::move(Direction direction) {
-    auto &head = m_body.front();
-
-    sf::Vector2f previousPosition = head->m_sprite.getPosition();
-    Direction nextDirection = head->m_currentDirection;
-
-    moveBodySegment(*head,direction);
+    auto &head = (*m_body.front());
+    sf::Vector2f previousPosition =head.m_sprite.getPosition();
+    Direction currentDirection = head.m_currentDirection;
+    // Process the head first
+    moveBodySegment(head,direction);
 
     // Now process the rest of the body
     auto currentSegment = std::next(m_body.begin());
@@ -68,8 +66,11 @@ void Snake::move(Direction direction) {
         sf::Vector2f currentPosition = (*currentSegment)->m_sprite.getPosition();
 
         // Move this segment to the position where the previous segment was
-        moveBodySegment(*currentSegment->get(),nextDirection);
-        nextDirection = (*currentSegment)->m_previousDirection;
+        (*currentSegment)->m_sprite.setPosition(previousPosition);
+        (*currentSegment)->m_sprite.setRotation(getRotationForDirection(currentDirection));
+        (*currentSegment)->m_previousDirection = (*currentSegment)->m_currentDirection;
+        (*currentSegment)->m_currentDirection = currentDirection;
+        currentDirection = (*currentSegment)->m_previousDirection;
 
         if ((*currentSegment)->m_currentDirection != (*previousSegment)->m_currentDirection) {
             changeToTurning(currentSegment, (*previousSegment)->m_currentDirection);
@@ -85,20 +86,23 @@ void Snake::move(Direction direction) {
         ++currentSegment;
     }
 
-    nextDirection = std::prev(endSegment)->get()->m_currentDirection;
+    currentDirection = std::prev(endSegment)->get()->m_currentDirection;
 
 // Process the tail segment
     (*endSegment)->m_previousDirection = (*endSegment)->m_currentDirection;
-    (*endSegment)->m_currentDirection = nextDirection;
-    (*endSegment)->m_sprite.setPosition(getNewPosition((*endSegment)->m_sprite.getPosition(), std::prev(endSegment)->get()->m_previousDirection));
-    (*endSegment)->m_sprite.setRotation(getRotationForDirection(nextDirection));
+    (*endSegment)->m_currentDirection = currentDirection;
+    (*endSegment)->m_sprite.setPosition(previousPosition);
+
+// Set the correct rotation based on the updated tail's direction
+    (*endSegment)->m_sprite.setRotation(getRotationForDirection(currentDirection));
 
 }
 
 
+
 void Snake::moveHead(Direction newDirection) {
     auto &head = (*m_body.front());
-    head.m_previousDirection = m_body.front()->m_currentDirection;
+    head.m_previousDirection = head.m_currentDirection;
     head.m_currentDirection = newDirection;
     head.m_sprite.setRotation(getRotationForDirection(newDirection));
     head.m_sprite.setPosition(getNewPosition(head.m_sprite.getPosition(), newDirection));
@@ -107,10 +111,11 @@ void Snake::moveHead(Direction newDirection) {
 void Snake::moveBodySegment(bodySegment &currentSegment,
                             Direction &nextDirection) {
 
-    currentSegment.m_sprite.setPosition(getNewPosition(currentSegment.m_sprite.getPosition(), nextDirection));
-    currentSegment.m_sprite.setRotation(getRotationForDirection(nextDirection));
     currentSegment.m_previousDirection = currentSegment.m_currentDirection;
     currentSegment.m_currentDirection = nextDirection;
+    currentSegment.m_sprite.setPosition(getNewPosition(currentSegment.m_sprite.getPosition(), nextDirection));
+    currentSegment.m_sprite.setRotation(getRotationForDirection(nextDirection));
+
 
 }
 
