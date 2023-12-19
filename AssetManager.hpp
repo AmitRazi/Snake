@@ -17,7 +17,7 @@ enum Asset{
     HorizontalWall,
     SnakeHead,
     SnakeBody,
-    VerticalBody,
+    SnakeTail,
     TurnBody,
     Food,
     Font,

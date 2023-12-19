@@ -41,7 +41,7 @@ void PlayState::reset() {
     m_elapsed = sf::Time::Zero;
     m_level.loadLevel("small2.png");  // Reload the level
     m_level.placeFoodRandomly();
-    m_snake.Init(3);  // Reinitialize the snake
+    m_snake.init(3);  // Reinitialize the snake
 
 }
 
@@ -55,10 +55,10 @@ void PlayState::draw(sf::RenderWindow &window) {
 void PlayState::update(sf::Time delta) {
     auto food = m_level.getFood();
     m_elapsed += delta;
-    if (m_elapsed.asSeconds() > 0.2) {
+    if (m_elapsed.asSeconds() > 0.5) {
         auto walls = m_level.getWalls();
         for (auto wall: walls) {
-            if (m_snake.Collision(wall)) {
+            if (m_snake.collision(wall)) {
                 reset();
                 getGame()->changeGameState(GameOverState);
                 return;
@@ -71,9 +71,9 @@ void PlayState::update(sf::Time delta) {
             return;
         }
 
-        if (m_snake.FoodCollision(food)) {
+        if (m_snake.foodCollision(food)) {
             m_level.placeFoodRandomly();
-            auto tailPosition = m_snake.GetTail().getPosition();
+            auto tailPosition = m_snake.getTail().getPosition();
             m_snake.grow(tailPosition);
         }
         m_snake.move(m_snakeDirection);

@@ -17,7 +17,7 @@ AssetManager::AssetManager() {
     addTexture(Asset::BottomEdgeWall, "..\\assets\\wall_block_32_6.png", false);
     addTexture(Asset::SnakeBody, "..\\assets\\body_horizontal.png", false);
     addTexture(Asset::SnakeHead, "..\\assets\\head_right.png", false);
-    addTexture(Asset::VerticalBody, "..\\assets\\body_vertical.png", false);
+    addTexture(Asset::SnakeTail, "..\\assets\\tail_left.png", false);
     addTexture(Asset::TurnBody, "..\\assets\\body_bottomright.png", false);
     addTexture(Asset::Food, "..\\assets\\apple.png", false);
     addTexture(Asset::Logo, "..\\assets\\logo2.png", false);

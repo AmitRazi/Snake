@@ -11,37 +11,38 @@ void centerOrigin(T &drawable) {
     drawable.setOrigin(bound.width / 2, bound.height / 2);
 }
 
-Snake::Snake() : m_body(), m_assetManager(AssetManager::getInstance()){
+Snake::Snake() : m_body(), m_assetManager(AssetManager::getInstance()) {
 }
 
-void Snake::Init(int initialSize) {
+void Snake::init(int initialSize) {
     m_body.clear();
 
     float offset = 50.f * static_cast<float>(initialSize);
-    auto head = std::make_unique<bodySegment>();
 
-    head->m_sprite.setTexture(m_assetManager.getTexture(Asset::SnakeHead));
-    centerOrigin(head->m_sprite);
-    head->m_sprite.setScale(0.8f, 0.8f);
-    head->m_sprite.setPosition(offset, 50.f);
-    head->m_previousDirection = Direction::Right;
-    head->m_currentDirection = Direction::Right;
-    m_body.push_back(std::move(head));
+    // Create head segment
+    m_body.push_back(createSegment(Asset::SnakeHead, offset, Direction::Right));
 
-    for (int i = 0; i < initialSize; ++i) {
-        auto segment = std::make_unique<bodySegment>();
-        segment->m_sprite.setTexture(m_assetManager.getTexture(Asset::SnakeBody));
-        segment->m_sprite.setScale(0.8f, 0.8f);
-        segment->m_currentDirection = Direction::Right;
-        segment->m_previousDirection = Direction::Right;
-        centerOrigin(segment->m_sprite);
-
+    // Create body segments
+    for (int i = 0; i < initialSize - 1; ++i) {
         offset -= 32.f;
-        segment->m_sprite.setPosition(offset, 50.f);
-        m_body.push_back(std::move(segment));
+        m_body.push_back(createSegment(Asset::SnakeBody, offset, Direction::Right));
     }
+
+    // Create tail segment
+    offset -= 32.f;
+    m_body.push_back(createSegment(Asset::SnakeTail, offset, Direction::Right));
 }
 
+std::unique_ptr<bodySegment> Snake::createSegment(Asset textureAsset, float positionOffset, Direction direction) {
+    auto segment = std::make_unique<bodySegment>();
+    segment->m_sprite.setTexture(m_assetManager.getTexture(textureAsset));
+    centerOrigin(segment->m_sprite);
+    segment->m_sprite.setPosition(positionOffset, 50.f);
+    segment->m_currentDirection = direction;
+    segment->m_previousDirection = direction;
+
+    return segment;
+}
 
 void Snake::draw(sf::RenderTarget &target, sf::RenderStates states) const {
     for (auto &bodyPart: m_body) {
@@ -50,35 +51,30 @@ void Snake::draw(sf::RenderTarget &target, sf::RenderStates states) const {
 }
 
 void Snake::move(Direction direction) {
-    // Process the head first
-    m_body.front()->m_previousDirection = m_body.front()->m_currentDirection;
-    m_body.front()->m_currentDirection = direction;
-    m_body.front()->m_sprite.setRotation(GetRotationForDirection(direction));
+    auto &head = m_body.front();
 
-    // Store the previous position of the head to set it to the next segment
-    sf::Vector2f previousPosition = m_body.front()->m_sprite.getPosition();
-    Direction currentDirection = m_body.front()->m_previousDirection;
-    m_body.front()->m_sprite.setPosition(GetNewPosition(previousPosition, direction));
+    sf::Vector2f previousPosition = head->m_sprite.getPosition();
+    Direction nextDirection = head->m_currentDirection;
+
+    moveBodySegment(*head,direction);
 
     // Now process the rest of the body
     auto currentSegment = std::next(m_body.begin());
     auto previousSegment = m_body.begin();
-    while (currentSegment != m_body.end()) {
+    auto endSegment = std::prev(m_body.end());
+    while (currentSegment != endSegment) {
 
         // Store the current position of the segment
         sf::Vector2f currentPosition = (*currentSegment)->m_sprite.getPosition();
 
         // Move this segment to the position where the previous segment was
-        (*currentSegment)->m_sprite.setPosition(previousPosition);
-        (*currentSegment)->m_sprite.setRotation(GetRotationForDirection(currentDirection));
-        (*currentSegment)->m_previousDirection = (*currentSegment)->m_currentDirection;
-        (*currentSegment)->m_currentDirection = currentDirection;
-        currentDirection = (*currentSegment)->m_previousDirection;
+        moveBodySegment(*currentSegment->get(),nextDirection);
+        nextDirection = (*currentSegment)->m_previousDirection;
 
         if ((*currentSegment)->m_currentDirection != (*previousSegment)->m_currentDirection) {
-            ChangeToTurning(currentSegment, (*previousSegment)->m_currentDirection);
-        } else{
-            RevertToNormalSprite(currentSegment->get()->m_sprite, currentSegment->get()->m_currentDirection);
+            changeToTurning(currentSegment, (*previousSegment)->m_currentDirection);
+        } else {
+            revertToNormalSprite(currentSegment->get()->m_sprite, currentSegment->get()->m_currentDirection);
         }
 
         previousSegment = currentSegment;
@@ -88,10 +84,38 @@ void Snake::move(Direction direction) {
         // Move to the next segment
         ++currentSegment;
     }
+
+    nextDirection = std::prev(endSegment)->get()->m_currentDirection;
+
+// Process the tail segment
+    (*endSegment)->m_previousDirection = (*endSegment)->m_currentDirection;
+    (*endSegment)->m_currentDirection = nextDirection;
+    (*endSegment)->m_sprite.setPosition(getNewPosition((*endSegment)->m_sprite.getPosition(), std::prev(endSegment)->get()->m_previousDirection));
+    (*endSegment)->m_sprite.setRotation(getRotationForDirection(nextDirection));
+
 }
 
 
-bool Snake::Collision(const sf::Sprite &other) const {
+void Snake::moveHead(Direction newDirection) {
+    auto &head = (*m_body.front());
+    head.m_previousDirection = m_body.front()->m_currentDirection;
+    head.m_currentDirection = newDirection;
+    head.m_sprite.setRotation(getRotationForDirection(newDirection));
+    head.m_sprite.setPosition(getNewPosition(head.m_sprite.getPosition(), newDirection));
+}
+
+void Snake::moveBodySegment(bodySegment &currentSegment,
+                            Direction &nextDirection) {
+
+    currentSegment.m_sprite.setPosition(getNewPosition(currentSegment.m_sprite.getPosition(), nextDirection));
+    currentSegment.m_sprite.setRotation(getRotationForDirection(nextDirection));
+    currentSegment.m_previousDirection = currentSegment.m_currentDirection;
+    currentSegment.m_currentDirection = nextDirection;
+
+}
+
+
+bool Snake::collision(const sf::Sprite &other) const {
     sf::FloatRect headBounds = m_body.front()->m_sprite.getGlobalBounds();
     sf::FloatRect otherBounds = other.getGlobalBounds();
 
@@ -111,9 +135,10 @@ bool Snake::Collision(const sf::Sprite &other) const {
     otherBounds.height *= shrinkFactor;
 
     // Check if the shrunken bounds intersect
-    return headBounds.intersects(otherBounds);}
+    return headBounds.intersects(otherBounds);
+}
 
-bool Snake::FoodCollision(const sf::Sprite &food) const {
+bool Snake::foodCollision(const sf::Sprite &food) const {
     sf::FloatRect headBounds = m_body.front()->m_sprite.getGlobalBounds();
     sf::FloatRect otherBounds = food.getGlobalBounds();
 
@@ -137,11 +162,10 @@ bool Snake::FoodCollision(const sf::Sprite &food) const {
 
 }
 
-void Snake::grow(const sf::Vector2f& position) {
+void Snake::grow(const sf::Vector2f &position) {
     auto segment = std::make_unique<bodySegment>();
-    segment->m_sprite.setTexture(m_assetManager.getTexture(Asset::SnakeBody));
+    segment->m_sprite.setTexture(m_assetManager.getTexture(Asset::SnakeTail));
     segment->m_sprite.setPosition(position);
-    segment->m_sprite.setScale(0.8f, 0.8f);
     segment->m_currentDirection = m_body.back()->m_currentDirection;
     centerOrigin(segment->m_sprite);
 
@@ -149,11 +173,11 @@ void Snake::grow(const sf::Vector2f& position) {
 }
 
 
-sf::Sprite &Snake::GetTail() const{
+sf::Sprite &Snake::getTail() const {
     return m_body.back()->m_sprite;
 }
 
-float Snake::GetRotationForDirection(Direction direction) const{
+float Snake::getRotationForDirection(Direction direction) const {
     switch (direction) {
         case Direction::Up:
             return -90.f;
@@ -166,7 +190,7 @@ float Snake::GetRotationForDirection(Direction direction) const{
     }
 }
 
-sf::Vector2f Snake::GetNewPosition(const sf::Vector2f& currentPosition, Direction direction) const{
+sf::Vector2f Snake::getNewPosition(const sf::Vector2f &currentPosition, Direction direction) const {
     switch (direction) {
         case Direction::Up:
             return currentPosition + sf::Vector2f(0.f, -32.f);
@@ -193,10 +217,8 @@ bool Snake::selfCollision() const {
     return false;
 }
 
-void Snake::ChangeToTurning(const std::_List_iterator<std::unique_ptr<bodySegment>>& iterator,const Direction direction) {
+void Snake::changeToTurning(const std::_List_iterator<std::unique_ptr<bodySegment>> &iterator, Direction direction) {
     (*iterator)->m_sprite.setTexture(m_assetManager.getTexture(Asset::TurnBody));
-    (*iterator)->m_sprite.setScale(0.8f, 0.8f);
-
     // Determine the rotation based on the combination of previous and current directions
     if ((*iterator)->m_currentDirection == Direction::Right) {
         if (direction == Direction::Up) {
@@ -228,9 +250,8 @@ void Snake::ChangeToTurning(const std::_List_iterator<std::unique_ptr<bodySegmen
     centerOrigin((*iterator)->m_sprite);
 }
 
-void Snake::RevertToNormalSprite(sf::Sprite& sprite, Direction direction) {
+void Snake::revertToNormalSprite(sf::Sprite &sprite, Direction direction) {
     sprite.setTexture(m_assetManager.getTexture(Asset::SnakeBody));
-    sprite.setScale(0.8f,0.8f);
-    sprite.setRotation(GetRotationForDirection(direction));
+    sprite.setRotation(getRotationForDirection(direction));
     centerOrigin(sprite);
 }

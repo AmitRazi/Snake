@@ -37,13 +37,20 @@ private:
 public:
     Snake();
 
-    void Init(int initialSize);
+    void init(int initialSize);
+
+    std::unique_ptr<bodySegment> createSegment(Asset textureAsset, float positionOffset, Direction direction);
 
     void move(Direction direction);
 
-    bool FoodCollision(const sf::Sprite& food) const;
+    void moveHead(Direction newDirection);
 
-    bool Collision(const sf::Sprite& other) const;
+    void moveBodySegment(bodySegment& currentSegment,
+                         Direction& currentDirection);
+
+    bool foodCollision(const sf::Sprite& food) const;
+
+    bool collision(const sf::Sprite& other) const;
 
     bool selfCollision() const;
 
@@ -51,15 +58,15 @@ public:
 
     void grow(const sf::Vector2f& position);
 
-    float GetRotationForDirection(Direction direction) const;
+    float getRotationForDirection(Direction direction) const;
 
-    sf::Vector2f GetNewPosition(const sf::Vector2f& currentPosition,Direction direction) const;
+    sf::Vector2f getNewPosition(const sf::Vector2f& currentPosition, Direction direction) const;
 
-    sf::Sprite& GetTail() const;
+    sf::Sprite& getTail() const;
 
-    void ChangeToTurning(const std::_List_iterator<std::unique_ptr<bodySegment>>& iterator,Direction direction);
+    void changeToTurning(const std::_List_iterator<std::unique_ptr<bodySegment>>& iterator, Direction direction);
 
-    void RevertToNormalSprite(sf::Sprite& sprite, Direction direction);
+    void revertToNormalSprite(sf::Sprite& sprite, Direction direction);
 };
 
 
